@@ -13,6 +13,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear loading message
       activitiesList.innerHTML = "";
 
+      // Clear previous select options (leave the placeholder option)
+      while (activitySelect.options.length > 1) {
+        activitySelect.remove(1);
+      }
+
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
@@ -27,6 +32,52 @@ document.addEventListener("DOMContentLoaded", () => {
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
         `;
 
+        // Create participants section using safe DOM methods
+        const participantsContainer = document.createElement("div");
+        participantsContainer.className = "participants";
+
+        const participantsHeader = document.createElement("h5");
+        participantsHeader.textContent = "Participants";
+        participantsContainer.appendChild(participantsHeader);
+
+        if (Array.isArray(details.participants) && details.participants.length > 0) {
+          const ul = document.createElement("ul");
+          ul.className = "participants-list";
+
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+            li.className = "participant-item";
+
+            const avatar = document.createElement("span");
+            avatar.className = "participant-avatar";
+            // Create initials from email/name safely
+            const initials = String(p)
+              .split("@")[0]
+              .split(/[\.\-_ ]+/)
+              .map(s => s[0] || "")
+              .slice(0,2)
+              .join("")
+              .toUpperCase();
+            avatar.textContent = initials || "?";
+
+            const nameSpan = document.createElement("span");
+            nameSpan.className = "participant-name";
+            nameSpan.textContent = p;
+
+            li.appendChild(avatar);
+            li.appendChild(nameSpan);
+            ul.appendChild(li);
+          });
+
+          participantsContainer.appendChild(ul);
+        } else {
+          const none = document.createElement("p");
+          none.className = "no-participants";
+          none.textContent = "No participants yet";
+          participantsContainer.appendChild(none);
+        }
+
+        activityCard.appendChild(participantsContainer);
         activitiesList.appendChild(activityCard);
 
         // Add option to select dropdown
